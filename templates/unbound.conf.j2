@@ -1,0 +1,9 @@
+# See the unbound.conf(5) man page.
+#
+# See /usr/share/doc/unbound/examples/unbound.conf for a commented
+# reference config file.
+
+server:
+{% for include in unbound_conf_list.files|sort(attribute='path') %}
+    include: "{{ include.path }}"
+{% endfor %}

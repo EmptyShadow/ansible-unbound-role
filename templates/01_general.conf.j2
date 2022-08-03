@@ -1,0 +1,26 @@
+# See https://unbound.docs.nlnetlabs.nl/en/latest/manpages/unbound.conf.html#server-options
+
+{% set config = unbound.configure.server %}
+    verbosity: {{ config.verbosity | default(1) }}
+{% set interfaces = config.interfaces | default(["0.0.0.0", "::0"]) %}
+{% for interface in interfaces %}
+    interface: {{ interface }}
+{% endfor %}
+    port: {{ config.port|default(53) }}
+    do-ip4: {{ config.do_ip4 | default("yes") }}
+    do-ip6: {{ config.do_ip6 | default("yes") }}
+    prefer-ip4: {{ config.prefer_ip4 | default("no") }}
+    prefer-ip6: {{ config.prefer_ip6 | default("no") }}
+    do-udp: {{ config.do_udp | default("yes") }}
+    do-tcp: {{ config.do_tcp | default("yes") }}
+    harden-glue: {{ config.harden_glue | default("yes") }}
+    harden-dnssec-stripped: {{ config.harden_dnssec_stripped | default("yes") }}
+    use-caps-for-id: {{ config.use_caps_for_id | default("no") }}
+    edns-buffer-size: {{ config.edns_buffer_size | default(1472) }}
+    prefetch: {{ config.prefetch | default("yes") }}
+    num-threads: {{ config.num_threads | default(1) }}
+    so-rcvbuf: {{ config.so_rcvbuf | default(0) }}
+{% set private_addresses = config.private_addresses | default(["192.168.0.0/16", "169.254.0.0/16", "172.16.0.0/12", "10.0.0.0/8", "fd00::/8", "fe80::/10"]) %}
+{% for private_address in private_addresses %}
+    private-address: {{ private_address }}
+{% endfor %}

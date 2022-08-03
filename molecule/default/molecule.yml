@@ -1,0 +1,22 @@
+---
+dependency:
+  name: galaxy
+
+driver:
+  name: docker
+
+platforms:
+  - name: debian11
+    image: local/debian11:latest
+    dockerfile: debian11.Dockerfile
+    pre_build_image: false
+
+provisioner:
+  name: ansible
+  inventory:
+    host_vars:
+      debian11:
+        ansible_python_interpreter: "/usr/bin/python3"
+
+verifier:
+  name: ansible

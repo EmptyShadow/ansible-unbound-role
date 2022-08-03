@@ -1,0 +1,11 @@
+---
+
+- name: Install unbound to Debian
+  ansible.builtin.apt:
+    name: unbound={{ unbound.install.apt.version }}
+    state: present
+    update_cache: yes
+  when: ansible_os_family == "Debian"
+  notify: 
+    - enable
+    - start

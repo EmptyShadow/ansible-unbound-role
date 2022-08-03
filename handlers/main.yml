@@ -1,0 +1,31 @@
+---
+
+- name: enable
+  ansible.builtin.service:
+    name: unbound
+    enabled: true
+
+- name: disable
+  ansible.builtin.service:
+    name: unbound
+    enabled: false
+
+- name: start
+  ansible.builtin.service:
+    name: unbound
+    state: started
+
+- name: stop
+  ansible.builtin.service:
+    name: unbound
+    state: stopped
+
+- name: restart
+  ansible.builtin.service: 
+    name: unbound
+    state: restarted
+
+- name: reload
+  ansible.builtin.service: 
+    name: unbound
+    state: reloaded

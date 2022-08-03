@@ -1,0 +1,10 @@
+galaxy_info:
+  author: Nebotov Dmitry
+  namespace: acme
+  description: Unbound server.
+  license: license (GPL-2.0-or-later, MIT, etc)
+  min_ansible_version: "2.1"
+  platforms: []
+  galaxy_tags: []
+
+dependencies: []

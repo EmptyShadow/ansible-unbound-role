@@ -1,0 +1,29 @@
+---
+
+- name: Create unbound configuration folder
+  file: 
+    path: /etc/unbound/conf.d
+    state: directory
+    mode: 0755
+  notify: restart
+
+- name: Create unbound configuration files
+  template:
+     src: "{{ item }}.j2"
+     dest: "/etc/unbound/conf.d/{{ item }}"
+  with_items:
+     - 01_general.conf
+  notify: restart
+
+- name: Retreive unbound configuration files
+  find: 
+    paths: /etc/unbound/conf.d
+  register: unbound_conf_list
+  check_mode: no
+
+- name: Create unbound.conf to include all configuration
+  template:
+     src: "unbound.conf.j2"
+     dest: "/etc/unbound/unbound.conf"
+     validate: "/usr/sbin/unbound-checkconf %s"
+  notify: restart

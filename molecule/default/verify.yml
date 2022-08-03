@@ -1,0 +1,70 @@
+---
+
+- name: Verify
+  hosts: all
+  gather_facts: false
+  tasks:
+
+  - name: Check if unbound is installed
+    ansible.builtin.package_facts:
+      manager: "auto"
+
+  - name: Print the package facts
+    ansible.builtin.debug:
+      var: ansible_facts.packages
+
+  - name: Test unbound package is installed
+    ansible.builtin.assert:
+      that:
+        - "'unbound' in ansible_facts.packages"
+        - "'unbound-anchor' in ansible_facts.packages"
+        - "ansible_facts.packages['unbound'][0]['version'] == '1.13.1-1'"
+        - "ansible_facts.packages['unbound-anchor'][0]['version'] == '1.13.1-1'"
+
+  - name: Check if unbound configuration folder is created
+    ansible.builtin.stat:
+      path: "/etc/unbound/conf.d"
+    register: directory
+
+  - name: Print the unbound config directory stat
+    ansible.builtin.debug:
+      var: directory
+
+  - name: Test unbound configuration folder is created
+    ansible.builtin.assert:
+      that:
+        - "directory.stat.exists"
+        - "directory.stat.isdir"
+        - "directory.stat.mode == '0755'"
+
+  - name: Check if unbound configuration files is created
+    ansible.builtin.find:
+      path: "/etc/unbound/conf.d"
+    register: configs
+
+  - name: Print the unbound configuration files
+    ansible.builtin.debug:
+      var: configs
+
+  - name: Test unbound configuration files is created
+    ansible.builtin.assert:
+      that:
+        - "not configs.files[0].isdir"
+        - "configs.files[0].path == '/etc/unbound/conf.d/01_general.conf'"
+
+    # TODO: check configs content.
+
+  - name: Check if unbound.conf is created
+    ansible.builtin.stat:
+      path: "/etc/unbound/unbound.conf"
+    register: unbound_conf
+
+  - name: Print the unbound.conf stat
+    ansible.builtin.debug:
+      var: unbound_conf
+
+  - name: Test unbound.conf is created
+    ansible.builtin.assert:
+      that:
+        - "unbound_conf.stat.exists"
+        - "not unbound_conf.stat.isdir"
