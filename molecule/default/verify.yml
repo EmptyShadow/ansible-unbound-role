@@ -5,11 +5,11 @@
   gather_facts: false
   tasks:
 
-  - name: Check if unbound is installed
+  - name: Get packages facts
     ansible.builtin.package_facts:
       manager: "auto"
 
-  - name: Print the package facts
+  - name: Print packages facts
     ansible.builtin.debug:
       var: ansible_facts.packages
 
@@ -21,7 +21,7 @@
         - "ansible_facts.packages['unbound'][0]['version'] == '1.13.1-1'"
         - "ansible_facts.packages['unbound-anchor'][0]['version'] == '1.13.1-1'"
 
-  - name: Check if unbound configuration folder is created
+  - name: Get unbound configuration folder stat
     ansible.builtin.stat:
       path: "/etc/unbound/conf.d"
     register: directory
@@ -37,12 +37,12 @@
         - "directory.stat.isdir"
         - "directory.stat.mode == '0755'"
 
-  - name: Check if unbound configuration files is created
+  - name: Get unbound find configuration files
     ansible.builtin.find:
       path: "/etc/unbound/conf.d"
     register: configs
 
-  - name: Print the unbound configuration files
+  - name: Print the unbound configuration files stat
     ansible.builtin.debug:
       var: configs
 
@@ -52,9 +52,7 @@
         - "not configs.files[0].isdir"
         - "configs.files[0].path == '/etc/unbound/conf.d/01_general.conf'"
 
-    # TODO: check configs content.
-
-  - name: Check if unbound.conf is created
+  - name: Get unbound.conf stat
     ansible.builtin.stat:
       path: "/etc/unbound/unbound.conf"
     register: unbound_conf
@@ -68,3 +66,36 @@
       that:
         - "unbound_conf.stat.exists"
         - "not unbound_conf.stat.isdir"
+
+  - name: Get services facts
+    ansible.builtin.service_facts:
+    register: services_facts
+
+  - name: Print services facts
+    ansible.builtin.debug:
+      var: services_facts
+
+  - name: Test unbound service status running
+    ansible.builtin.assert:
+      that:
+        - "services_facts.ansible_facts.services.unbound.name == 'unbound'"
+        - "services_facts.ansible_facts.services.unbound.state == 'running'"
+
+  - name: Install dnsutils
+    ansible.builtin.apt:
+      name: dnsutils
+      state: present
+      update_cache: yes
+
+  - name: Get stdout from dig
+    ansible.builtin.shell: "dig @127.0.0.1 google.com"
+    register: dig_output
+
+  - name: Print dig_output
+    ansible.builtin.debug:
+      var: dig_output
+
+  - name: Test dig output
+    ansible.builtin.assert:
+      that:
+        - "';; SERVER: 127.0.0.1#53(127.0.0.1)' in dig_output.stdout_lines"

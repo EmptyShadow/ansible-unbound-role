@@ -1,9 +1,23 @@
 ---
 
+- name: Create unbound group
+  ansible.builtin.group:
+    name: unbound
+    state: present
+
+- name: Create unbound user (nologin shell)
+  ansible.builtin.user:
+    name: unbound
+    group: unbound
+    state: present
+    system: yes
+    shell: /usr/sbin/nologin
+
 - name: Create unbound configuration folder
   file: 
     path: /etc/unbound/conf.d
     state: directory
+    owner: unbound
     mode: 0755
   notify: restart
 
@@ -11,6 +25,7 @@
   template:
      src: "{{ item }}.j2"
      dest: "/etc/unbound/conf.d/{{ item }}"
+     owner: unbound
   with_items:
      - 01_general.conf
   notify: restart
@@ -25,5 +40,6 @@
   template:
      src: "unbound.conf.j2"
      dest: "/etc/unbound/unbound.conf"
+     owner: unbound
      validate: "/usr/sbin/unbound-checkconf %s"
   notify: restart

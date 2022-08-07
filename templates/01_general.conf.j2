@@ -24,3 +24,5 @@
 {% for private_address in private_addresses %}
     private-address: {{ private_address }}
 {% endfor %}
+    remote-control:
+        control-enable: {{ config.control.enable }}
